@@ -43,7 +43,7 @@
 				$login = new LoginForm;
 				$form=$this->beginWidget('CActiveForm', array(
 					'id'=>'login-form',
-					'action'=>$this->createUrl('site/login'),
+					'action'=>$this->createUrl('/site/login'),
 					'enableClientValidation'=>false,
 					'htmlOptions'=>array(
 						'class'=>'pull-right',
