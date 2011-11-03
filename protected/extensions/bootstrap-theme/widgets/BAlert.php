@@ -81,6 +81,7 @@ class BAlert extends CWidget {
 	public function init() {
 		if($this->canClose) {
 			$cs = Yii::app()->clientScript;
+			$cs->registerCoreScript('jquery');
 			$cs->registerScriptFile(Yii::app()->theme->baseUrl.'/js/bootstrap-alerts.js', CClientScript::POS_END);
 		}
 		$class = array();

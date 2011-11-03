@@ -117,6 +117,7 @@ class BModal extends CWidget {
 
 		echo BHtml::closeTag('div'); // container
 		$cs = Yii::app()->clientScript;
+		$cs->registerCoreScript('jquery');
 		$cs->registerScriptFile(Yii::app()->theme->baseUrl.'/js/bootstrap-modal.js', CClientScript::POS_END);
 	}
 	
