@@ -14,7 +14,7 @@ body {
 	padding: 7px 20px;
 	margin: 0 -20px 18px;
 }
-.content {
+.appcontent {
 	background-color: #fff;
 	padding: 20px;
 	margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
