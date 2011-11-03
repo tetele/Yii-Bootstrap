@@ -92,7 +92,7 @@ class BModal extends CWidget {
 		if($this->heading)
 			$header .= BHtml::tag('h3',array(),$this->heading);
 		echo BHtml::tag('div',array('class'=>'modal-header'),$header);
-		echo BHtml::openTag('div',array('class'=>'modal-body'));
+		echo BHtml::openTag('div',array('class'=>'modal-body','id'=>$this->id.'-body'));
 	}
 	
 	public function run() {
@@ -100,17 +100,26 @@ class BModal extends CWidget {
 		if(!empty($this->actions)) {
 			$actions = array();
 			foreach($this->actions as $action) {
+				$tagType = 'link';
 				if(!is_array($action))
 					$action = array('text'=>$action);
 				if(!isset($action['text']))
 					$action['text'] = 'Action';
 				if(!isset($action['url']))
-					$action['url'] = '#';
+					$tagType = 'button';
 				if(!isset($action['htmlOptions']))
 					$action['htmlOptions'] = array('class'=>'btn small');
 				else
-					$action['htmlOptions']['class'] .= ' btn small';
-				$actions[] = CHtml::link($action['text'], $action['url'], $action['htmlOptions']);
+					$action['htmlOptions']['class'] = (isset($action['htmlOptions']['class']) ? $action['htmlOptions']['class'].' ' : '') . 'btn small';
+				if(isset($action['primary']) && $action['primary'])
+					$action['htmlOptions']['class'] .= ' primary';
+				if(isset($action['onclick']))
+					$action['htmlOptions']['onclick'] = (isset($action['htmlOptions']['onclick']) ? $action['htmlOptions']['onclick'] : '').$action['onclick'];
+				if(isset($action['close']) && $action['close'])
+					$action['htmlOptions']['onclick'] = (isset($action['onclick']) ? $action['onclick'] : '').';$("#'.$this->id.'").modal("hide");';
+				$actions[] = ($tagType == 'link')
+					? CHtml::link($action['text'], $action['url'], $action['htmlOptions'])
+					: BHtml::button($action['text'], $action['htmlOptions']);
 			}
 			echo BHtml::tag('div',array('class'=>'modal-footer'),implode("\n",$actions));
 		}
@@ -126,7 +135,7 @@ class BModal extends CWidget {
 	 * when {@link $show} is set to false
 	 */
 	public function toggleButton($text,$htmlOptions=array()) {
-		$htmlOptions['data-backdrop']=(bool)$this->backdrop;
+		$htmlOptions['data-backdrop']=$this->backdrop;
 		$htmlOptions['data-keyboard']=(bool)$this->keyboard;
 		$htmlOptions['data-show']=(bool)$this->show;
 		echo BHtml::modalButton($text,$this->id,$htmlOptions);
@@ -135,12 +144,16 @@ class BModal extends CWidget {
 	/**
 	 * Makes modal window show up via JavaScript, without any trigger component
 	 */
-	public function show() {
+	public function show($return=false) {
 		$options = array(
-			'backdrop'=>(bool)$this->backdrop,
+			'backdrop'=>$this->backdrop,
 			'keyboard'=>(bool)$this->keyboard,
 			'show'=>true,
 		);
-		Yii::app()->clientScript->registerScript('BModal#'.$this->id,'$("#'.$this->id.'").modal('.CJSON::encode($options).');',CClientScript::POS_READY);
+		$script = '$("#'.$this->id.'").modal('.CJSON::encode($options).');';
+		if($return)
+			return $script;
+		else
+			Yii::app()->clientScript->registerScript('BModal#'.$this->id,$script,CClientScript::POS_READY);
 	}
 }
