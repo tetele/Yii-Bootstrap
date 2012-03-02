@@ -38,6 +38,61 @@
 class BHtml extends CHtml {
 	const ID_PREFIX='ytb';
 	
+	protected static function scriptFileName() {
+		return (defined('YII_DEBUG') && YII_DEBUG) ? 'bootstrap.js' : 'bootstrap.min.js';
+	}
+	
+	public static function registerBootstrapJs() {
+		$cs = Yii::app()->clientScript;
+		$cs->registerCoreScript('jquery');
+		$cs->registerScriptFile(Yii::app()->theme->baseUrl.'/js/'.self::scriptFileName(), CClientScript::POS_END);
+	}
+	
+	public static function dropdownToggle($label, $htmlOptions = array()) {
+		$defaultButtonOptions = array(
+			'data-toggle'=>'dropdown'
+		);
+		
+		$toggle = '';
+		if(is_array($label) && count($label) === 1) {
+			list($primaryLabel,$primaryAction) = array(array_pop(array_keys($label)),array_pop($label));
+			$toggle = self::link($primaryLabel, $primaryAction, $htmlOptions);
+			$htmlOptions = array_merge($defaultButtonOptions, $htmlOptions);
+			$htmlOptions['class'] = isset($htmlOptions['class']) ? $htmlOptions['class'].' dropdown-toggle' : 'dropdown-toggle';
+			$toggle .= self::link(
+				self::tag('span',array('class'=>'caret'),''),
+				'#',
+				$htmlOptions
+			);
+		} else {
+			$htmlOptions['class'] = isset($htmlOptions['class']) ? $htmlOptions['class'].' dropdown-toggle' : 'dropdown-toggle';
+			$htmlOptions = array_merge($defaultButtonOptions, $htmlOptions);
+			$toggle = self::link(
+				$label.' '.self::tag('span',array('class'=>'caret'),''),
+				'#',
+				$htmlOptions
+			);
+		}
+		
+		return $toggle;
+	}
+	
+	public static function dropdownMenu($items, $htmlOptions=array()) {
+		$actionList = '';
+		$linkOptions = isset($htmlOptions['linkOptions']) ? $htmlOptions['linkOptions'] : array();
+		unset($htmlOptions['linkOptions']);
+		
+		$htmlOptions['class'] = isset($htmlOptions['class']) ? $htmlOptions['class'].' dropdown-menu' : 'dropdown-menu';
+		
+		foreach($items as $label => $link) {
+			if(is_numeric($label) && $link === 'divider')
+				$actionList .= self::tag('li',array('class'=>'divider'));
+			else
+				$actionList .= self::tag('li',array(),self::link($label, $link, $linkOptions));
+		}
+		return self::tag('ul',$htmlOptions,$actionList);
+	}
+	
 	/**
 	 * Generates a Bootstrap-styled button.
 	 * @param string $label the button label
@@ -65,6 +120,66 @@ class BHtml extends CHtml {
 		return self::tag('input',$htmlOptions);
 	}
 	
+	public static function buttonGroup($buttons=array(), $htmlOptions=array()) {
+		if(!isset($htmlOptions['class']))
+			$htmlOptions['class'] = 'btn-group';
+		else
+			$htmlOptions['class'] .= ' btn-group';
+		if(is_array($buttons))
+			$buttons = implode("\n",$buttons);
+		return self::tag('div',$htmlOptions,$buttons);
+	}
+	
+	public static function buttonToolbar($groups=array(), $htmlOptions=array()) {
+		if(!isset($htmlOptions['class']))
+			$htmlOptions['class'] = 'btn-toolbar';
+		else
+			$htmlOptions['class'] .= ' btn-toolbar';
+		if(is_array($groups))
+			$groups = implode("\n",$groups);
+		return self::tag('div',$htmlOptions,$groups);
+	}
+	
+	public static function buttonDropdown($label, $actions=array(), $htmlOptions=array()) {
+//		$defaultButtonOptions = array(
+//			'class'=>'dropdown-toggle',
+//			'data-toggle'=>'dropdown'
+//		);
+//		
+//		if(!isset($htmlOptions['buttonOptions']))
+//			$htmlOptions['buttonOptions'] = $defaultButtonOptions;
+//		else
+//			$htmlOptions['buttonOptions'] = array_merge($defaultButtonOptions, $htmlOptions['buttonOptions']);
+//		
+//		$toggle = '';
+//		if(is_array($label) && count($label) === 1) {
+//			list($primaryLabel,$primaryAction) = array(array_pop(array_keys($label)),array_pop($label));
+//			$toggle = self::linkButton($primaryLabel, $primaryAction, $htmlOptions['buttonOptions']);
+//			$toggle .= self::linkButton(
+//				self::tag('span',array('class'=>'caret'),''),
+//				'#',
+//				$htmlOptions['buttonOptions']
+//			);
+//		} else {
+//			$toggle = self::linkButton(
+//				$label.' '.self::tag('span',array('class'=>'caret'),''),
+//				'#',
+//				$htmlOptions['buttonOptions']
+//			);
+//		}
+		
+		$htmlOptions['buttonOptions'] = isset($htmlOptions['buttonOptions']) ? $htmlOptions['buttonOptions'] : array();
+		$htmlOptions['buttonOptions']['class'] = isset($htmlOptions['buttonOptions']['class']) ? $htmlOptions['buttonOptions']['class'].' btn' : 'btn';
+		$toggle = self::dropdownToggle($label, $htmlOptions['buttonOptions']);
+		unset($htmlOptions['buttonOptions']);
+		
+		$actionList = self::dropdownMenu($actions);
+		
+		self::registerBootstrapJs();
+		
+		return self::buttonGroup(array($toggle, $actionList));
+	}
+	
 	/**
 	 * Generates a Bootstrap-styled submit button.
 	 * @param string $label the button label
@@ -77,8 +192,38 @@ class BHtml extends CHtml {
 	{
 		$htmlOptions['type']='submit';
 		if(!isset($htmlOptions['class']))
-			$htmlOptions['class'] = 'primary';
+			$htmlOptions['class'] = 'btn-primary';
 		return self::button($label,$htmlOptions);
+	}
+	
+	public static function linkButton($label, $url = '#', $htmlOptions = array()) {
+		$class = 'btn';
+		
+		if(isset($htmlOptions['type']) && !in_array($htmlOptions['type'],array('primary','info','success','warning','danger','inverse')))
+			unset($htmlOptions['type']);
+		if(isset($htmlOptions['type']))
+			$class .= ' btn-'.$htmlOptions['type'];
+		if(isset($htmlOptions['icon']))
+			$label = '<i class="icon-'.$htmlOptions['icon'].(isset($htmlOptions['type'])?' icon-white':'').'"></i> '.$label;
+		unset($htmlOptions['icon']);
+		unset($htmlOptions['type']);
+		
+		if(isset($htmlOptions['size']) && !in_array($htmlOptions['size'],array('large','small','mini')))
+			unset($htmlOptions['size']);
+		if(isset($htmlOptions['size']))
+			$class .= ' btn-'.$htmlOptions['size'];
+		unset($htmlOptions['size']);
+		
+		if(isset($htmlOptions['disabled']) && $htmlOptions['disabled'])
+			$class .= ' disabled';
+		unset($htmlOptions['disabled']);
+		
+		if(isset($htmlOptions['class']))
+			$htmlOptions['class'] .= ' '.$class;
+		else
+			$htmlOptions['class'] = $class;
+		
+		return self::link($label, $url, $htmlOptions);
 	}
 	
 	/**
@@ -95,6 +240,53 @@ class BHtml extends CHtml {
 			$htmlOptions['href']='#';
 		$htmlOptions['data-controls-modal']=$target;
 		return self::tag('a',$htmlOptions,$text);
+	}
+	
+	/**
+	 * Generates a check box for a model attribute.
+	 * The attribute is assumed to take either true or false value.
+	 * If the attribute has input error, the input field's CSS class will
+	 * be appended with {@link errorCss}.
+	 * @param CModel $model the data model
+	 * @param string $attribute the attribute
+	 * @param array $htmlOptions additional HTML attributes. Besides normal HTML attributes, a few special
+	 * attributes are also recognized (see {@link clientChange} and {@link tag} for more details.)
+	 * A special option named 'uncheckValue' is available that can be used to specify
+	 * the value returned when the checkbox is not checked. By default, this value is '0'.
+	 * Internally, a hidden field is rendered so that when the checkbox is not checked,
+	 * we can still obtain the posted uncheck value.
+	 * If 'uncheckValue' is set as NULL, the hidden field will not be rendered.
+	 * @return string the generated check box
+	 * @see clientChange
+	 * @see activeInputField
+	 */
+	public static function activeCheckBox($model,$attribute,$htmlOptions=array())
+	{
+		self::resolveNameID($model,$attribute,$htmlOptions);
+		if(!isset($htmlOptions['value']))
+			$htmlOptions['value']=1;
+		if(!isset($htmlOptions['checked']) && self::resolveValue($model,$attribute)==$htmlOptions['value'])
+			$htmlOptions['checked']='checked';
+		self::clientChange('click',$htmlOptions);
+
+		if(array_key_exists('uncheckValue',$htmlOptions))
+		{
+			$uncheck=$htmlOptions['uncheckValue'];
+			unset($htmlOptions['uncheckValue']);
+		}
+		else
+			$uncheck='0';
+		
+		$labelClass = '';
+		if(isset($htmlOptions['inline']) && $htmlOptions['inline'])
+			$labelClass = ' inline';
+		$labelClass = 'checkbox'.$labelClass;
+		unset($htmlOptions['inline']);
+
+		$hiddenOptions=isset($htmlOptions['id']) ? array('id'=>self::ID_PREFIX.$htmlOptions['id']) : array('id'=>false);
+		$hidden=$uncheck!==null ? self::hiddenField($htmlOptions['name'],$uncheck,$hiddenOptions) : '';
+
+		return $hidden . self::tag('label', array('class' => 'checkbox'), self::activeInputField('checkbox',$model,$attribute,$htmlOptions) . ' ' . $model->getAttributeLabel($attribute));
 	}
 	
 	/**
@@ -197,5 +389,17 @@ class BHtml extends CHtml {
 		}
 		else
 			return '';
+	}
+	
+	public static function inlineLabel($label, $type=false) {
+		$opts = array(
+			'class'=>'label',
+		);
+		if(!in_array($type,array('success','warning','important','info')))
+			$type = false;
+		if($type !== false)
+			$opts['class'] .= ' label-'.$type;
+		
+		return self::tag('span',$opts,$label);
 	}
 }
