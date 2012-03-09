@@ -15,50 +15,9 @@ Add these lines to your base controller class (usually found in `protected/compo
 
 ``` php
 <?php
-private $_pageCaption = null;
-private $_pageDescription = null;
-
-/**
- * @return string the page heading (or caption). Defaults to the controller name and the action name,
- * without the application name.
- */
-public function getPageCaption() {
-	if($this->_pageCaption!==null)
-		return $this->_pageCaption;
-	else
-	{
-		$name=ucfirst(basename($this->getId()));
-		if($this->getAction()!==null && strcasecmp($this->getAction()->getId(),$this->defaultAction))
-			return $this->_pageCaption=$name.' '.ucfirst($this->getAction()->getId());
-		else
-			return $this->_pageCaption=$name;
-	}
-}
-
-/**
- * @param string $value the page heading (or caption)
- */
-public function setPageCaption($value) {
-	$this->_pageCaption = $value;
-}
-
-/**
- * @return string the page description (or subtitle). Defaults to the page title + 'page' suffix.
- */
-public function getPageDescription() {
-	if($this->_pageDescription!==null)
-		return $this->_pageDescription;
-	else
-	{
-		return Yii::app()->name . ' ' . $this->getPageCaption() . ' page';
-	}
-}
-
-/**
- * @param string $value the page description (or subtitle)
- */
-public function setPageDescription($value) {
-	$this->_pageDescription = $value;
+public function init() {
+	$this->attachBehavior('bootstrap', new BController($this));
+	...
 }
 ?>
 ```
@@ -75,6 +34,7 @@ return array( // this row should already exist
 		...
 		'ext.bootstrap-theme.widgets.*',
 		'ext.bootstrap-theme.helpers.*',
+		'ext.bootstrap-theme.behaviors.*',
 	),
 	...
 	'modules' => array(
