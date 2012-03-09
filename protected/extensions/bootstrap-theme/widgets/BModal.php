@@ -88,7 +88,7 @@ class BModal extends CWidget {
 		if($this->fade)
 			$this->htmlOptions['class'] .= ' fade';
 		echo BHtml::openTag('div',$this->htmlOptions);
-		$header = BHtml::link('&times;','#',array('class'=>'close'));
+		$header = BHtml::link('&times;','#',array('class'=>'close','data-dismiss'=>'modal'));
 		if($this->heading)
 			$header .= BHtml::tag('h3',array(),$this->heading);
 		echo BHtml::tag('div',array('class'=>'modal-header'),$header);
@@ -125,9 +125,8 @@ class BModal extends CWidget {
 		}
 
 		echo BHtml::closeTag('div'); // container
-		$cs = Yii::app()->clientScript;
-		$cs->registerCoreScript('jquery');
-		$cs->registerScriptFile(Yii::app()->theme->baseUrl.'/js/bootstrap-modal.js', CClientScript::POS_END);
+		
+		BHtml::registerBootstrapJs();
 	}
 	
 	/**

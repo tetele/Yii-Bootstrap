@@ -31,18 +31,31 @@
  * Bootstrap-specific widgets
  *
  * @author Tudor Sandu <tm.sandu@gmail.com>
- * @version 0.1
+ * @version 0.2
  * @package bootstrap
  * @since 0.1
  */
 class BActiveForm extends CActiveForm {
+	public $type;
 	public function init() {
 		// Set input container for error class addition when validation fails
 		if(isset($this->clientOptions)) {
 			if(!isset($this->clientOptions['inputContainer']))
-				$this->clientOptions['inputContainer'] = '.form-row';
+				$this->clientOptions['inputContainer'] = '.control-group';
 		} else
-			$this->clientOptions = array('inputContainer' => '.form-row');
+			$this->clientOptions = array('inputContainer' => '.control-group');
+			
+		// Set default for class
+		if(!isset($this->type) || !in_array($this->type,array('vertical','inline','search','horizontal')))
+			$this->type = 'horizontal';
+		$class = 'form-'.$this->type;
+		if(isset($this->htmlOptions)) {
+			if(!isset($this->htmlOptions['class']))
+				$this->htmlOptions['class'] = $class;
+			else
+				$this->htmlOptions['class'] .= ' '.$class;
+		} else
+			$this->htmlOptions = array('class' => $class);
 		// then do($magic)
 		parent::init();
 	}
@@ -53,7 +66,7 @@ class BActiveForm extends CActiveForm {
 	 * @param string $attribute the attribute name
 	 */
 	public function fieldClass($model, $attribute) {
-		$class = 'form-row clearfix';
+		$class = 'control-group';
 		if($model->getError($attribute))
 			$class .= ' error';
 		return $class;
@@ -216,5 +229,15 @@ class BActiveForm extends CActiveForm {
 
 		$this->summaryID=$htmlOptions['id'];
 		return $html;
+	}
+	
+	public function checkBox(CModel $model, $attribute, $htmlOptions=array()) {
+		return BHtml::activeCheckBox($model, $attribute, $htmlOptions);
+	}
+	
+	public function labelEx(CModel $model, $attribute, $htmlOptions=array())
+	{
+		$htmlOptions['class'] = 'control-label' . (isset($htmlOptions['class']) ? ($htmlOptions['class'].' ') : '');
+		return CHtml::activeLabelEx($model,$attribute,$htmlOptions);
 	}
 }

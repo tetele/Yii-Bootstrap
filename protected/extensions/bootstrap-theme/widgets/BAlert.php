@@ -80,16 +80,14 @@ class BAlert extends CWidget {
 	
 	public function init() {
 		if($this->canClose) {
-			$cs = Yii::app()->clientScript;
-			$cs->registerCoreScript('jquery');
-			$cs->registerScriptFile(Yii::app()->theme->baseUrl.'/js/bootstrap-alerts.js', CClientScript::POS_END);
+			BHtml::registerBootstrapJs();
 		}
 		$class = array();
-		$class[] = 'alert-message';
+		$class[] = 'alert';
 		if($this->isBlock)
-			$class[] = 'block-message';
-		if(in_array($this->type, array('warning', 'error', 'success')))
-			$class[] = $this->type;
+			$class[] = 'alert-block';
+		if(in_array($this->type, array('warning', 'error', 'success', 'danger', 'info')))
+			$class[] = 'alert-'.$this->type;
 		else
 			$class[] = 'info';
 		if($this->canClose && $this->fadeWhenClose)
@@ -102,13 +100,14 @@ class BAlert extends CWidget {
 		$htmlOptions['data-alert'] = 'alert';
 		
 		$html = '';
+		Yii::trace(CVarDumper::dumpAsString($this->canClose));
 		if($this->canClose)
-			$html .= CHtml::link('&times;','#',array('class'=>'close'));
+			$html .= CHtml::link('&times;','#',array('class'=>'close', 'data-dismiss'=>'alert'));
 		
 		echo CHtml::openTag(
 			'div',
 			$htmlOptions
-		);
+		).$html;
 	}
 	
 	public function run() {
@@ -123,12 +122,12 @@ class BAlert extends CWidget {
 				if(!isset($action['url']))
 					$action['url'] = '#';
 				if(!isset($action['htmlOptions']))
-					$action['htmlOptions'] = array('class'=>'btn small');
+					$action['htmlOptions'] = array('class'=>'btn');
 				else
-					$action['htmlOptions'] .= 'btn small';
+					$action['htmlOptions']['class'] = isset($action['htmlOptions']['class']) ? $action['htmlOptions']['class'].' btn' : 'btn';
 				$actions[] = CHtml::link($action['text'], $action['url'], $action['htmlOptions']);
 			}
-			$html .= CHtml::tag('div',array('class'=>'alert-actions'),implode("\n",$actions));
+			$html .= CHtml::tag('p',array(),implode("\n",$actions));
 		}
 		
 		echo $html . CHtml::closeTag('div');
