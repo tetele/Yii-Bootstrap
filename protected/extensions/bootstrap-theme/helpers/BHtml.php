@@ -237,8 +237,8 @@ class BHtml extends CHtml {
 	 */
 	public function modalLink($text,$target,$htmlOptions=array()) {
 		if(!isset($htmlOptions['href']))
-			$htmlOptions['href']='#';
-		$htmlOptions['data-controls-modal']=$target;
+			$htmlOptions['href']='#'.$target;
+		$htmlOptions['data-toggle']='modal';
 		return self::tag('a',$htmlOptions,$text);
 	}
 	
