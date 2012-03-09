@@ -11,7 +11,7 @@
 				<?php echo $content; ?>
 			</div>
 			<div class="span4">
-				<h3>Secondary content</h3>
+				<h3><?php echo CHtml::encode($this->sidebarCaption); ?></h3>
 				<?php
 					$this->beginWidget('zii.widgets.CPortlet', array(
 						'title'=>'Operations',
