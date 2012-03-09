@@ -29,7 +29,7 @@
 <?php foreach($this->getModelAttributes() as $attribute): ?>
 	<div class="<?php echo "<?php echo \$form->fieldClass(\$model, '$attribute'); ?>"; ?>">
 		<?php echo "<?php echo \$form->labelEx(\$model,'$attribute'); ?>\n"; ?>
-		<div class="input">
+		<div class="controls">
 			<?php echo "<?php echo \$form->textField(\$model,'$attribute'); ?>\n"; ?>
 			<?php echo "<?php echo \$form->error(\$model,'$attribute'); ?>\n"; ?>
 		</div>
@@ -37,7 +37,7 @@
 
 <?php endforeach; ?>
 
-	<div class="actions">
+	<div class="form-actions">
 		<?php echo "<?php echo BHtml::submitButton('Submit'); ?>\n"; ?>
 	</div>
 
