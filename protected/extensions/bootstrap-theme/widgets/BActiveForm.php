@@ -231,11 +231,11 @@ class BActiveForm extends CActiveForm {
 		return $html;
 	}
 	
-	public function checkBox(CModel $model, $attribute, $htmlOptions=array()) {
+	public function checkBox($model, $attribute, $htmlOptions=array()) {
 		return BHtml::activeCheckBox($model, $attribute, $htmlOptions);
 	}
 	
-	public function labelEx(CModel $model, $attribute, $htmlOptions=array())
+	public function labelEx($model, $attribute, $htmlOptions=array())
 	{
 		$htmlOptions['class'] = 'control-label' . (isset($htmlOptions['class']) ? ($htmlOptions['class'].' ') : '');
 		return CHtml::activeLabelEx($model,$attribute,$htmlOptions);

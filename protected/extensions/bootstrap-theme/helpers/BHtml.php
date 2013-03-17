@@ -196,7 +196,7 @@ class BHtml extends CHtml {
 		return self::button($label,$htmlOptions);
 	}
 	
-	public static function linkButton($label, $url = '#', $htmlOptions = array()) {
+	public static function linkButton($label='submit',$htmlOptions = array()) {
 		$class = 'btn';
 		
 		if(isset($htmlOptions['type']) && !in_array($htmlOptions['type'],array('primary','info','success','warning','danger','inverse')))
@@ -223,7 +223,7 @@ class BHtml extends CHtml {
 		else
 			$htmlOptions['class'] = $class;
 		
-		return self::link($label, $url, $htmlOptions);
+		return self::link($label, '#', $htmlOptions);
 	}
 	
 	/**
